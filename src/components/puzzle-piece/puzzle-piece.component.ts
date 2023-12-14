@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, Output, numberAttribute } from "@angular/core";
 import { EmptyPositionService } from "../../services/empty-position.service";
 
-
-import { ShakeDirective } from "../../directives/shake.directive";
 import { Position, isAdjecent, isSamePosition } from "../../utils/position";
+import { NgClass } from "@angular/common";
 
 export interface IPuzzlePiece {
     imagePosition: Position;
@@ -13,7 +12,7 @@ export interface IPuzzlePiece {
 @Component({
     standalone: true,
     selector: 'puzzle-piece',
-    imports: [ShakeDirective],
+    imports: [NgClass],
     templateUrl: "./puzzle-piece.component.html",
     styleUrl: "./puzzle-piece.component.css",
 })
@@ -57,7 +56,7 @@ export class PuzzlePiece {
         }
     }
 
-    // controls the [appShake] directive
+    // controls the [ngClass] attribute to shake
     shake() {
         this.isShaking = true;
 
