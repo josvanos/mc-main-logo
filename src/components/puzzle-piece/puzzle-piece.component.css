@@ -1,0 +1,21 @@
+.puzzle-piece {
+  background-color: white;
+  width: 150px;
+  height: 150px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  background-image: url("/assets/logo.png");
+  position: relative;
+
+  border: none;
+}
+
+.puzzle-piece__index {
+  position: absolute;
+  color: white;
+  right: 0;
+  top: 0;
+  padding: 2px 5px;
+}
+
+

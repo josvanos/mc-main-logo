@@ -1,0 +1,16 @@
+.puzzle-board {
+  background-color: #d1d5db;
+  padding: 10px;
+}
+
+.winner-text {
+  position: fixed;
+  background-color: white;
+  padding: 10px 15px;
+  color: green;
+  font-weight: bold;
+
+  right: 0;
+  top: 0;
+  font-size: 24pt;
+}

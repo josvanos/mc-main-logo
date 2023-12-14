@@ -1,0 +1,5 @@
+<button class="puzzle-piece" [appShake]="isShaking" (click)="requestToMovePiece()" [style]="getCutImageStyles()">
+    <div class="puzzle-piece__index" [style]="getIndexStyles()">
+        {{ index + 1 }}
+    </div>
+</button>

@@ -1,0 +1,29 @@
+.content {
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.header{
+  
+}
+
+h1 {
+  font-size: 2.125rem;
+  font-weight: 500;
+  line-height: 100%;
+  letter-spacing: -0.125rem;
+  margin: 1em;
+  font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+}
+
+.subtitle {
+  display: block;
+  margin-top: 0.25em;
+  color: var(--gray);
+  font-size: 12pt;
+}

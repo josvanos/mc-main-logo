@@ -1,0 +1,25 @@
+<div class="puzzle-board">
+    <table class="tile-grid">
+
+
+
+        <tr class="tile-grid__row" *ngFor="let y of numberOfVerticalTiles | enumerate">
+
+            <td *ngFor="let x of numberOfHorizontalTiles | enumerate">
+
+
+                <puzzle-piece *ngIf="getPiece(x,y)" [item]="getPiece(x,y)!" [boardPosition]="{x,y}"
+                    (onMoveRequest)="movePiece($event)" />
+
+
+
+            </td>
+
+        </tr>
+
+    </table>
+</div>
+
+<div class="winner-text" *ngIf="isFinished">
+    WINNER
+</div>
