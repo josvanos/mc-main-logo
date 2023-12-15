@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, numberAttribute } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { EmptyPositionService } from "../../services/empty-position.service";
 
 import { Position, isAdjecent, isSamePosition } from "../../utils/position";
@@ -17,16 +17,8 @@ export interface IPuzzlePiece {
     styleUrl: "./puzzle-piece.component.css",
 })
 export class PuzzlePiece {
-    // work around for { ...props } syntax in JSX or :v-bind="$props" in Vue
-    index!: number;
-    imagePosition!: Position;
-
-    @Input("item")
-    set _item(item: IPuzzlePiece) {
-        this.index = item.index;
-        this.imagePosition = item.imagePosition;
-    }
-
+    @Input() index!: number;
+    @Input() imagePosition!: Position;
     boardPosition!: Position;
 
     @Input("boardPosition")
@@ -36,25 +28,10 @@ export class PuzzlePiece {
 
     @Output() onMoveRequest: EventEmitter<Position> = new EventEmitter();
 
-
+    constructor(private emptyPositionService: EmptyPositionService) { }
+    // logic for shaking
     private timeoutId: any;
     isShaking: boolean = false;
-
-    constructor(private emptyPositionService: EmptyPositionService) { }
-
-    // sets the background-color of the piece index
-    getIndexStyles() {
-        return {
-            'background-color': isSamePosition(this.boardPosition, this.imagePosition) ? 'green' : 'red'
-        };
-    }
-
-    // sets the image postition correctly
-    getCutImageStyles() {
-        return {
-            'background-position': `-${this.imagePosition.x * 150}px -${this.imagePosition.y * 150}px`
-        }
-    }
 
     // controls the [ngClass] attribute to shake
     shake() {
@@ -68,6 +45,20 @@ export class PuzzlePiece {
     // Cleans up the timeout when the component is destroyed
     ngOnDestroy() {
         if (this.timeoutId) clearTimeout(this.timeoutId);
+    }
+
+    // sets the background-color of the piece index
+    getIndexStyles() {
+        return {
+            'background-color': isSamePosition(this.boardPosition, this.imagePosition) ? 'green' : 'red'
+        };
+    }
+
+    // sets the image postition correctly
+    getCutImageStyles() {
+        return {
+            'background-position': `-${this.imagePosition.x * 150}px -${this.imagePosition.y * 150}px`
+        }
     }
 
     // Allows the user to move a piece when it is adjecent

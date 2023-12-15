@@ -1,8 +1,8 @@
-//https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+// Copied from
+// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 
-export function toShuffledArray<T>(array: T[]) {
-    let copy = [...array];
-    let currentIndex = copy.length;
+export function shuffleArray<T>(array: T[]) {
+    let currentIndex = array.length;
     let randomIndex;
 
     // While there remain elements to shuffle.
@@ -13,9 +13,9 @@ export function toShuffledArray<T>(array: T[]) {
         currentIndex--;
 
         // And swap it with the current element.
-        [copy[currentIndex], copy[randomIndex]] = [
-            copy[randomIndex], copy[currentIndex]];
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
     }
 
-    return copy;
+    return array;
 }

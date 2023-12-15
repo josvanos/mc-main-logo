@@ -1,17 +1,18 @@
-import { Component, Input, numberAttribute } from "@angular/core";
+import { Component, Input, numberAttribute, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { EnumeratePipe } from "../../pipes/EnumeratePipe";
 import { IPuzzlePiece, PuzzlePiece } from "../puzzle-piece/puzzle-piece.component";
 import { EmptyPositionService } from "../../services/empty-position.service";
-import { toShuffledArray } from "../../utils/shuffle";
+import { shuffleArray } from "../../utils/shuffle";
 import { Position, isSamePosition } from "../../utils/position";
 
+type Row = IPuzzlePiece | null;
+const EMPTY_PIECE = null;
 
 @Component({
     standalone: true,
     selector: 'puzzle-board',
-    imports: [EnumeratePipe, CommonModule, PuzzlePiece],
+    imports: [CommonModule, PuzzlePiece],
     templateUrl: "./puzzle-board.component.html",
     styleUrl: "./puzzle-board.component.css"
 })
@@ -19,35 +20,39 @@ export class PuzzleBoard {
     @Input({ transform: numberAttribute }) numberOfVerticalTiles!: number;
     @Input({ transform: numberAttribute }) numberOfHorizontalTiles!: number;
 
-    board = new Map<string, IPuzzlePiece>();
     endPosition!: Position;
-
     isFinished = false;
+
+    /**
+     * @description a nested list of puzzle pieces 
+     * @example // board of 3 x 3
+     * [[1,2,3], [4,5,6], [7,8,null]] 
+     */
+    boardRows = signal<Row[][]>([[]]);
 
     constructor(private emptyPositionService: EmptyPositionService) { }
 
     ngOnInit() {
-        this.createPuzzlePieces();
-    }
-
-    // helper function to get the piece based on the board x and y
-    getPiece(x: number, y: number) {
-        const position = new Position(x, y);
-        const piece = this.board.get(position.toString());
-        return piece;
+        this.loadBoard();
     }
 
     // listens to 'move piece' event of any child puzzle piece
     movePiece(position: Position) {
-        const piece = this.board.get(position.toString())
-        if (!piece) throw Error('Piece not found on board');
 
-        // swap empty position with position of piece
-        const emptyPosition = this.emptyPositionService.getPosition();
-        this.emptyPositionService.setPosition(position);
+        this.boardRows.update((rows) => {
+            const piece = rows[position.y][position.x];
+            if (!piece) throw Error('Piece not found on board');
 
-        this.board.delete(position.toString())
-        this.board.set(emptyPosition.toString(), piece);
+            // update the empty location and temporary store the old one
+            const emptyPosition = this.emptyPositionService.getPosition();
+            this.emptyPositionService.setPosition(position);
+
+            // swap empty and piece position
+            rows[position.y][position.x] = EMPTY_PIECE;
+            rows[emptyPosition.y][emptyPosition.x] = piece;
+
+            return rows;
+        });
 
         // side effect: check if the position is winning
         this.checkWinningPosition();
@@ -55,48 +60,65 @@ export class PuzzleBoard {
 
     // check if the puzzle is completed
     checkWinningPosition() {
+
         // first check if the empty slot is at his end location
         const emptyPosition = this.emptyPositionService.getPosition();
         if (!isSamePosition(emptyPosition, this.endPosition)) return;
 
-        // check if every image position matches the board position
-        const isInWinningPosition = [...this.board.entries()].every(([key, piece]) => key === piece.imagePosition.toString())
-        if (!isInWinningPosition) return;
+        // check if every piece image position matches the board position 
+        for (const [y, row] of this.boardRows().entries()) {
+            for (const [x, piece] of row.entries()) {
+                if (piece === EMPTY_PIECE) continue;
+
+                const position = new Position(x, y);
+                if (!isSamePosition(position, piece.imagePosition)) return;
+            }
+        }
 
         this.isFinished = true;
     }
 
     // loads the puzzle pieces, empty location and end position
-    createPuzzlePieces() {
+    loadBoard() {
         const numberOfTiles = this.numberOfHorizontalTiles * this.numberOfVerticalTiles
 
-        this.endPosition = new Position(this.numberOfHorizontalTiles - 1, this.numberOfVerticalTiles - 1);
-        this.emptyPositionService.setPosition(this.endPosition);
-
-        const numberOfPieces = numberOfTiles - 1;   // the last location is always the empty slot
-
-        // cut the image in positions
-        const imagePositions: Position[] = [];
-        for (let i = 0; i < numberOfPieces; i++) {
+        // cut the image in images with an image position and index 
+        const images: Row[] = [];
+        for (let i = 0; i < (numberOfTiles - 1); i++) {
             const x = i % this.numberOfVerticalTiles;
             const y = Math.floor(i / this.numberOfVerticalTiles);
 
-            const position = new Position(x, y);
-            imagePositions.push(position)
-        }
-
-        // shuffle the image positions
-        const boardPositions = toShuffledArray(imagePositions);
-
-        // put each piece on top of the board
-        boardPositions.forEach((boardPosition, index) => {
-            const puzzlePiece = {
-                imagePosition: imagePositions[index],
-                index,
+            const piece: Row = {
+                index: i,
+                imagePosition: new Position(x, y),
             }
 
-            this.board.set(boardPosition.toString(), puzzlePiece);
-        });
+            images.push(piece);
+        }
+
+        // shuffle the images
+        shuffleArray(images);
+
+        // build the board by assigning images to a board location
+        const rows: Row[][] = [];
+        for (let y = 0; y < this.numberOfVerticalTiles; y++) {
+            const row = []
+            for (let x = 0; x < this.numberOfHorizontalTiles; x++) {
+                const index = y * this.numberOfVerticalTiles + x;
+
+                // get puzzle piece at this location
+                const image = images[index];
+                row.push(image);
+            }
+            rows.push(row);
+        }
+
+        // remove the item on the last place and set it at endPosition
+        rows[this.numberOfVerticalTiles - 1][this.numberOfHorizontalTiles - 1] = EMPTY_PIECE;
+        this.endPosition = new Position(this.numberOfHorizontalTiles - 1, this.numberOfVerticalTiles - 1);
+        this.emptyPositionService.setPosition(this.endPosition);
+
+        this.boardRows.set(rows);
     }
 }
 
