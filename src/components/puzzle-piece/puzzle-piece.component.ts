@@ -9,6 +9,8 @@ export interface IPuzzlePiece {
     index: number;
 }
 
+const TILE_SIZE = 150;
+
 @Component({
     standalone: true,
     selector: 'puzzle-piece',
@@ -57,7 +59,7 @@ export class PuzzlePiece {
     // sets the image postition correctly
     getCutImageStyles() {
         return {
-            'background-position': `-${this.imagePosition.x * 150}px -${this.imagePosition.y * 150}px`
+            'background-position': `-${this.imagePosition.x * TILE_SIZE}px -${this.imagePosition.y * TILE_SIZE}px`
         }
     }
 

@@ -81,10 +81,11 @@ export class PuzzleBoard {
     // loads the puzzle pieces, empty location and end position
     loadBoard() {
         const numberOfTiles = this.numberOfHorizontalTiles * this.numberOfVerticalTiles
+        const numberOfPieces = numberOfTiles - 1; // takes empty slot into account by -1
 
-        // cut the image in images with an image position and index 
+        // divide the image in images with an image position and index 
         const images: Row[] = [];
-        for (let i = 0; i < (numberOfTiles - 1); i++) {
+        for (let i = 0; i < numberOfPieces; i++) {
             const x = i % this.numberOfVerticalTiles;
             const y = Math.floor(i / this.numberOfVerticalTiles);
 
@@ -117,7 +118,7 @@ export class PuzzleBoard {
         const endPosition = new Position(this.numberOfHorizontalTiles - 1, this.numberOfVerticalTiles - 1);
         rows[endPosition.y][endPosition.x] = EMPTY_PIECE;
 
-        // set board rows, end position and empty position
+        // set end position, empty position and board rows
         this.endPosition = endPosition;
         this.emptyPositionService.setPosition(this.endPosition);
         this.boardRows.set(rows);
