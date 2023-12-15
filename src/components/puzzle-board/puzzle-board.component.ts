@@ -114,10 +114,12 @@ export class PuzzleBoard {
         }
 
         // remove the item on the last place and set it at endPosition
-        rows[this.numberOfVerticalTiles - 1][this.numberOfHorizontalTiles - 1] = EMPTY_PIECE;
-        this.endPosition = new Position(this.numberOfHorizontalTiles - 1, this.numberOfVerticalTiles - 1);
-        this.emptyPositionService.setPosition(this.endPosition);
+        const endPosition = new Position(this.numberOfHorizontalTiles - 1, this.numberOfVerticalTiles - 1);
+        rows[endPosition.y][endPosition.x] = EMPTY_PIECE;
 
+        // set board rows, end position and empty position
+        this.endPosition = endPosition;
+        this.emptyPositionService.setPosition(this.endPosition);
         this.boardRows.set(rows);
     }
 }
