@@ -55,15 +55,15 @@ export class PuzzleBoard {
         });
 
         // side effect: check if the position is winning
-        this.checkWinningPosition();
+        this.isFinished = this.isWinningPosition();
     }
 
     // check if the puzzle is completed
-    checkWinningPosition() {
+    isWinningPosition() {
 
         // first check if the empty slot is at his end location
         const emptyPosition = this.emptyPositionService.getPosition();
-        if (!isSamePosition(emptyPosition, this.endPosition)) return;
+        if (!isSamePosition(emptyPosition, this.endPosition)) return false;
 
         // check if every piece image position matches the board position 
         for (const [y, row] of this.boardRows().entries()) {
@@ -71,11 +71,11 @@ export class PuzzleBoard {
                 if (piece === EMPTY_PIECE) continue;
 
                 const position = new Position(x, y);
-                if (!isSamePosition(position, piece.imagePosition)) return;
+                if (!isSamePosition(position, piece.imagePosition)) return false;
             }
         }
 
-        this.isFinished = true;
+        return true;
     }
 
     // loads the puzzle pieces, empty location and end position
@@ -83,7 +83,7 @@ export class PuzzleBoard {
         const numberOfTiles = this.numberOfHorizontalTiles * this.numberOfVerticalTiles
         const numberOfPieces = numberOfTiles - 1; // takes empty slot into account by -1
 
-        // divide the image in images with an image position and index 
+        // build an array of image parts with an image position and index 
         const images: Row[] = [];
         for (let i = 0; i < numberOfPieces; i++) {
             const x = i % this.numberOfVerticalTiles;
@@ -101,13 +101,14 @@ export class PuzzleBoard {
         shuffleArray(images);
 
         // build the board by assigning images to a board location
+        // note that it also assigns the empty slot
         const rows: Row[][] = [];
         for (let y = 0; y < this.numberOfVerticalTiles; y++) {
             const row = []
             for (let x = 0; x < this.numberOfHorizontalTiles; x++) {
                 const index = y * this.numberOfVerticalTiles + x;
 
-                // get puzzle piece at this location
+                // get a shuffled image at this location
                 const image = images[index];
                 row.push(image);
             }
